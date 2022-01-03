@@ -4,19 +4,16 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js"></script>
 </head>
 
-<body>
-    <div class="abs" id="street"></div>
-    <button class="btn abs front" id="retb" onclick="retToStart()">Return</button>
-    <div class="abs front" id="mapdiv">
-        <div id="map"></div>
-        <button class="btn abs front" id="endb" onclick="endGame()">End</button>
-    </div>
+<body class="centerdiv">
+    <input id="keyinput" type="text" placeholder="Your maps API key">
+    <button id="keyenter" onclick="enter()">Enter</button>
 
+    <br>
+    Get your API key at <a target="_blank" href="https://console.cloud.google.com/google/maps-apis/credentials">https://console.cloud.google.com/google/maps-apis/credentials</a>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=[KEY]&callback=startGame&v=weekly" async></script>
+    <script src="login.js"></script>
 </body>
 
 </html>

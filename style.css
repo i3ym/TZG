@@ -13,12 +13,7 @@ body {
     z-index: 1;
 }
 
-#street {
-    height: 100%;
-    width: 100%;
-}
-
-#map {
+#street, #map {
     width: 100%;
     height: 100%;
 }
@@ -47,7 +42,30 @@ body {
     height: 20px;
 }
 
+#retb {
+    top: 10px;
+    left: 10px;
+}
+
 #endb {
     bottom: 10px;
     left: 10px;
+}
+
+#resetb {
+    bottom: 10px;
+    left: 10px;
+}
+
+.centerdiv {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#keyinput {
+    width: 24em;
 }

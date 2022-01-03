@@ -8,6 +8,20 @@ let street, map;
 let marker;
 let pos;
 
+
+function start(key) {
+    if (!key) localStorage.removeItem('key');
+    else localStorage.setItem('key', key);
+
+    const scr = document.createElement('script');
+    scr.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&callback=startGame&v=weekly';
+    scr.async = true;
+    document.body.appendChild(scr);
+}
+function resetKey() {
+    location = 'index.js';
+}
+
 async function startGame() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 56.026, lng: 92.94 },
@@ -49,7 +63,9 @@ async function startGame() {
         showRoadLabels: false,
     });
 }
-function retToStart() { street.setPosition({ lat: posx, lng: posy }); }
+function retToStart() {
+    street.setPosition(pos);
+}
 function endGame() {
     if (!marker) return;
 
@@ -72,3 +88,9 @@ function endGame() {
         map: map,
     });
 }
+
+
+
+const savedkey = localStorage.getItem('key');
+if (!savedkey) location = 'index.js';
+else start(savedkey);
