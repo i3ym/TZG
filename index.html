@@ -7,11 +7,21 @@
 </head>
 
 <body class="centerdiv">
-    <input id="keyinput" type="text" placeholder="Your maps API key">
+    Your maps API key
+    <input id="keyinput" type="text">
     <button id="keyenter" onclick="enter()">Enter</button>
 
     <br>
-    Get your API key at <a target="_blank" href="https://console.cloud.google.com/google/maps-apis/credentials">https://console.cloud.google.com/google/maps-apis/credentials</a>
+    <br>
+    How to get an API key
+    <br>
+
+    <div>
+        <a target="_blank" href="https://console.cloud.google.com/projectselector2/google/maps-apis/credentials">Create a project</a>,
+        <a target="_blank" href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com">enable JS API</a>,
+        <a target="_blank" href="https://console.cloud.google.com/google/maps-apis/credentials">create an API key</a>
+    </div>
+    <a target="_blank" href="https://developers.google.com/maps/documentation/javascript/get-api-key">More info</a>
 
     <script src="login.js"></script>
 </body>
