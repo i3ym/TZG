@@ -19,27 +19,31 @@ body {
 }
 
 #mapdiv {
-    height: 500px;
-    width: 500px;
-    bottom: 10px;
-    right: 80px;
-
-    transition: height, width;
+    transition: height, width, top, bottom, left, right;
     transition-duration: .5s;
     transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-#mapdiv:hover {
-    height: 1200px;
-    width: 2500px;
 }
 
 #mapdiv * {
     cursor: default !important;
 }
 
+#buttons {
+    top: 10px;
+    left: 10px;
+    pointer-events: none;
+}
+
 .btn {
-    height: 20px;
+    display: block;
+    pointer-events: auto;
+    width: 50px;
+    height: 50px;
+    font-size: 20pt;
+    background-color: #212121;
+    border-width: 0;
+    cursor: pointer;
+    margin-bottom: 5px;
 }
 
 #retb {
@@ -49,12 +53,12 @@ body {
 
 #endb {
     bottom: 10px;
-    left: 10px;
+    right: 10px;
 }
 
 #resetb {
-    bottom: 10px;
-    left: 10px;
+    top: 10px;
+    right: 10px;
 }
 
 .centerdiv {
