@@ -23,7 +23,7 @@ function start(key) {
     document.body.appendChild(scr);
 }
 function resetKey() {
-    location = 'index.js';
+    location = 'index.html';
 }
 
 function getDarkMapStyles() {
@@ -216,5 +216,5 @@ function retToStart() {
 
 
 const savedkey = localStorage.getItem('key');
-if (!savedkey) location = 'index.js';
+if (!savedkey) location = 'index.html';
 else start(savedkey);
