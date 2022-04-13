@@ -25,7 +25,10 @@ body {
 }
 
 #mapdiv * {
-    cursor: default !important;
+    cursor: default!important;
+}
+#mapdiv > .btn, #mapdiv > .btn * {
+    cursor: pointer!important;
 }
 
 #buttons {
