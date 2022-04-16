@@ -3,9 +3,6 @@ const miny = 92.794119;
 const maxx = 56.092132;
 const maxy = 93.039045;
 
-const style = document.createElement('style');
-document.body.appendChild(style);
-
 const markers = [];
 let marker;
 let sv;
@@ -112,18 +109,7 @@ async function startGame() {
     }
 
     document.getElementById('endb').childNodes[1].childNodes[1].setAttribute('d', "M480 128c0 8.188-3.125 16.38-9.375 22.62l-256 256C208.4 412.9 200.2 416 192 416s-16.38-3.125-22.62-9.375l-128-128C35.13 272.4 32 264.2 32 256c0-18.28 14.95-32 32-32c8.188 0 16.38 3.125 22.62 9.375L192 338.8l233.4-233.4C431.6 99.13 439.8 96 448 96C465.1 96 480 109.7 480 128z");
-    style.textContent = `
-        #mapdiv {
-            height: 500px;
-            width: 500px;
-            bottom: 10px;
-            right: 80px;
-        }
-        #mapdiv:hover {
-            height: 90%;
-            width: 80%;
-        }
-    `;
+    document.getElementById("mapdiv").classList.remove("maximized");
 
     for (const m in markers) markers[m].setMap(null);
     marker?.setMap(null);
@@ -182,14 +168,7 @@ function endGame() {
     }
 
     document.getElementById('endb').childNodes[1].childNodes[1].setAttribute('d', "M459.5 71.41l-171.5 142.9v83.45l171.5 142.9C480.1 457.7 512 443.3 512 415.1V96.03C512 68.66 480.1 54.28 459.5 71.41zM203.5 71.41L11.44 231.4c-15.25 12.87-15.25 36.37 0 49.24l192 159.1c20.63 17.12 52.51 2.749 52.51-24.62v-319.9C255.1 68.66 224.1 54.28 203.5 71.41z");
-    style.textContent = `
-        #mapdiv {
-            height: 100%;
-            width: 100%;
-            bottom: 0;
-            right: 0;
-        }
-    `;
+    document.getElementById("mapdiv").classList.add("maximized");
 
     const mappos = marker.getPosition();
     const streetpos = pos;
