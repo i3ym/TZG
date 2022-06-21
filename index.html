@@ -1,29 +1,48 @@
 ﻿<!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TZG</title>
 
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css" />
-</head>
+    <link rel="stylesheet" href="common.css" />
+    <link rel="stylesheet" href="index.css" />
+  </head>
 
-<body class="centerdiv">
+  <body class="centerdiv">
     Your maps API key
-    <input id="keyinput" type="text">
-    <button id="keyenter" onclick="enter()">Enter</button>
+    <input id="key" type="text" />
+    <button onclick="enter()">Enter</button>
 
-    <br>
-    <br>
+    <br />
+    <br />
     How to get an API key
-    <br>
+    <br />
 
     <div>
-        <a target="_blank" href="https://console.cloud.google.com/projectselector2/google/maps-apis/credentials">Create a project</a>,
-        <a target="_blank" href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com">enable JS API</a>,
-        <a target="_blank" href="https://console.cloud.google.com/google/maps-apis/credentials">create an API key</a>
+      <a
+        target="_blank"
+        href="https://console.cloud.google.com/projectselector2/google/maps-apis/credentials"
+        >Create a project</a
+      >,
+      <a
+        target="_blank"
+        href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com"
+        >enable JS API</a
+      >,
+      <a
+        target="_blank"
+        href="https://console.cloud.google.com/google/maps-apis/credentials"
+        >create an API key</a
+      >
     </div>
-    <a target="_blank" href="https://developers.google.com/maps/documentation/javascript/get-api-key">More info</a>
+    <a
+      target="_blank"
+      href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+      >More info</a
+    >
 
     <script src="login.js"></script>
-</body>
-
+  </body>
 </html>

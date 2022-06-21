@@ -1,0 +1,98 @@
+.button {
+  position: relative;
+  background-color: rgb(34, 34, 34);
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+  border-width: 0;
+  cursor: pointer;
+  border-radius: 2px;
+  width: 40px;
+  height: 40px;
+}
+
+.button .icon {
+  display: block;
+  height: 18px;
+  width: 18px;
+  box-sizing: content-box;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #b3b3b3;
+}
+
+.button:hover .icon {
+  color: #e6e6e6;
+}
+
+.topPanel {
+  display: flex;
+  padding: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.topPanel > * {
+  margin-right: 5px;
+  pointer-events: auto;
+}
+
+.topPanel > :last-child {
+  margin-right: 0;
+}
+
+#mapWrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 500px;
+  width: 500px;
+  margin: 0 67px 20px 0;
+
+  transition: height, width, margin, transform;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+#mapWrapper:hover {
+  height: 90%;
+  width: 80%;
+}
+
+#mapWrapper.maximized {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+#mapWrapper.minimized {
+  height: 200px;
+  width: 200px;
+}
+
+#streetPanorama,
+#map {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+#map * {
+  cursor: default;
+}
+
+#endButton {
+  display: none;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+#endButton.visible {
+  display: block;
+}
