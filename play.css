@@ -59,7 +59,13 @@
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-#mapWrapper:hover {
+#mapWrapper.mobile {
+  margin-right: 0;
+  height: 200px;
+  width: 200px;
+}
+
+#mapWrapper:not(.mobile, .maximized, .minimized):hover {
   height: 90%;
   width: 80%;
 }
@@ -95,4 +101,11 @@
 
 #endButton.visible {
   display: block;
+}
+
+#toggleMapSizeButton {
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
