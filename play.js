@@ -1,7 +1,33 @@
-const minx = 55.96792;
-const miny = 92.794119;
-const maxx = 56.092132;
-const maxy = 93.039045;
+let cityBounds = {
+  /** Minimum X */
+  south: null,
+  /** Minimum Y */
+  west: null,
+  /** Maximum X */
+  north: null,
+  /** Maximum Y */
+  east: null,
+};
+
+switch (location.search) {
+  case "?omsk":
+    cityBounds = {
+      south: 54.8298979,
+      west: 73.097454,
+      north: 55.141854,
+      east: 73.61482389999999,
+    };
+    break;
+  default:
+  case "?krasnoyarsk":
+    cityBounds = {
+      south: 55.96792,
+      west: 92.794119,
+      north: 56.092132,
+      east: 93.039045,
+    };
+    break;
+}
 
 const mapStyles = [
   {
@@ -93,8 +119,18 @@ const mapStyles = [
   },
 ];
 
+const maximizePath =
+  "M0 0v6h2V2h4V0H0zm16 0h-4v2h4v4h2V0h-2zm0 16h-4v2h6v-6h-2v4zM2 12H0v6h6v-2H2v-4z";
+const normalizePath =
+  "M4 4H0v2h6V0H4v4zm10 0V0h-2v6h6V4h-4zm-2 14h2v-4h4v-2h-6v6zM0 14h4v4h2v-6H0v2z";
+const checkPath =
+  "M480 128c0 8-3 16-9 23L215 407a32 32 0 0 1-46 0L41 279c-6-7-9-15-9-23a32 32 0 0 1 55-23l105 106 233-234c7-6 15-9 23-9 17 0 32 14 32 32z";
+const rewindBackPath =
+  "M460 71 288 214v84l172 143c20 17 52 2 52-26V96c0-27-32-42-52-25zm-256 0L11 231a32 32 0 0 0 0 50l192 159c21 17 53 2 53-25V95c-1-26-32-41-52-24z";
+
 const endButton = document.getElementById("endButton");
 const fullscreenButton = document.getElementById("fullscreenButton");
+const toggleMapSizeButton = document.getElementById("toggleMapSizeButton");
 const mapWrapper = document.getElementById("mapWrapper");
 const mapDiv = document.getElementById("map");
 const streetPanoramaDiv = document.getElementById("streetPanorama");
@@ -106,15 +142,37 @@ let map;
 let position;
 let gameStarted;
 let mouseCaptured;
+let isMobile;
 
-function start(key) {
-  // firefox fix
-  navigator.__defineGetter__("userAgent", function () {
-    return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36";
-  });
+function start() {
+  if (
+    (isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ))
+  )
+    mapWrapper.classList.add("mobile");
 
+  if (navigator.userAgent.search(/Gecko\/[0-9]*?/i) !== -1) {
+    navigator.__defineGetter__("userAgent", function () {
+      return "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36";
+    });
+    console.log("Firefox detected, UserAgent patched");
+  }
+
+  if (keyForDevelopmentOnly) {
+    const script = document.createElement("script");
+    script.src = "googleMapsApiPatcher.js";
+    script.onload = createMapsApiScript;
+    document.head.appendChild(script);
+  } else {
+    createMapsApiScript();
+  }
+}
+
+function createMapsApiScript() {
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&v=3&callback=initializeMaps&v=weekly`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initializeMaps&v=weekly`;
   script.async = true;
   document.head.appendChild(script);
 }
@@ -139,6 +197,7 @@ async function initializeMaps() {
     zoomControl: false,
     enableCloseButton: false,
     fullscreenControl: false,
+    motionTracking: false,
   });
   expectedMarker = new google.maps.Marker({
     map,
@@ -158,24 +217,56 @@ async function initializeMaps() {
     visible: false,
   });
 
-  map.setCenter({ lat: minx + (maxx - minx), lng: miny + (maxy - miny) });
-  map.setZoom(12);
+  map.fitBounds(cityBounds, 0);
   map.addListener("click", onMapClick);
 
-  streetPanoramaDiv.addEventListener("mousedown", () => {
-    mouseCaptured = true;
-    mapWrapper.classList.add("minimized");
-  });
+  if (!keyForDevelopmentOnly) {
+    const streetPanoramaStatusChangedListener = streetPanorama.addListener(
+      "status_changed",
+      function () {
+        if (streetPanorama.getStatus() !== "OK") return;
 
-  document.addEventListener("mouseup", () => {
-    mouseCaptured = false;
-  });
+        setTimeout(() => {
+          const node = recursivelyFindNodeWithText(
+            streetPanoramaDiv,
+            "For development purposes only"
+          );
 
-  mapDiv.addEventListener("mouseenter", () => {
-    if (!mouseCaptured) mapWrapper.classList.remove("minimized");
-  });
+          if (node) {
+            localStorage.setItem("keyForDevelopmentOnly", "1");
+            location.reload();
+          }
+        }, 100);
+
+        streetPanoramaStatusChangedListener.remove();
+      }
+    );
+  }
+
+  if (!isMobile) {
+    streetPanoramaDiv.addEventListener("mousedown", () => {
+      mouseCaptured = true;
+      mapWrapper.classList.add("minimized");
+    });
+
+    document.addEventListener("mouseup", () => {
+      mouseCaptured = false;
+    });
+
+    mapDiv.addEventListener("mouseenter", () => {
+      if (!mouseCaptured) mapWrapper.classList.remove("minimized");
+    });
+  }
 
   await startGame();
+}
+
+function recursivelyFindNodeWithText(node, text) {
+  for (let childNode of node.childNodes) {
+    if (childNode.nodeValue === text) return childNode;
+    childNode = recursivelyFindNodeWithText(childNode, text);
+    if (childNode) return childNode;
+  }
 }
 
 function onMapClick(e) {
@@ -196,18 +287,27 @@ function onEndButtonClick() {
 
 function onFullscreenButtonClick() {
   if (document.fullscreenElement) {
-    setButtonSvgPath(
-      fullscreenButton,
-      "M0 0v6h2V2h4V0H0zm16 0h-4v2h4v4h2V0h-2zm0 16h-4v2h6v-6h-2v4zM2 12H0v6h6v-2H2v-4z"
-    );
+    setButtonSvgPath(fullscreenButton, maximizePath);
     document.exitFullscreen();
   } else {
-    setButtonSvgPath(
-      fullscreenButton,
-      "M4 4H0v2h6V0H4v4zm10 0V0h-2v6h6V4h-4zm-2 14h2v-4h4v-2h-6v6zM0 14h4v4h2v-6H0v2z"
-    );
+    setButtonSvgPath(fullscreenButton, normalizePath);
     document.body.requestFullscreen();
   }
+}
+
+function toggleMapSize() {
+  if (mapWrapper.classList.contains("maximized")) normalizeMap();
+  else maximizeMap();
+}
+
+function maximizeMap() {
+  setButtonSvgPath(toggleMapSizeButton, normalizePath);
+  mapWrapper.classList.add("maximized");
+}
+
+function normalizeMap() {
+  setButtonSvgPath(toggleMapSizeButton, maximizePath);
+  mapWrapper.classList.remove("maximized");
 }
 
 async function startGame() {
@@ -216,8 +316,10 @@ async function startGame() {
   gameStarted = true;
 
   for (let i = 0; i < 3; i++) {
-    const posX = Math.random() * (maxx - minx) + minx;
-    const posY = Math.random() * (maxy - miny) + miny;
+    const posX =
+      Math.random() * (cityBounds.north - cityBounds.south) + cityBounds.south;
+    const posY =
+      Math.random() * (cityBounds.east - cityBounds.west) + cityBounds.west;
 
     try {
       const panorama = await streetService.getPanorama({
@@ -234,10 +336,7 @@ async function startGame() {
 
   streetPanorama.setPosition(position);
 
-  setButtonSvgPath(
-    endButton,
-    "M480 128c0 8-3 16-9 23L215 407a32 32 0 0 1-46 0L41 279c-6-7-9-15-9-23a32 32 0 0 1 55-23l105 106 233-234c7-6 15-9 23-9 17 0 32 14 32 32z"
-  );
+  setButtonSvgPath(endButton, checkPath);
 }
 
 async function restartGame() {
@@ -247,7 +346,7 @@ async function restartGame() {
   polylineMarker.setVisible(false);
 
   endButton.classList.remove("visible");
-  mapWrapper.classList.remove("maximized");
+  normalizeMap();
 
   await startGame();
 }
@@ -257,11 +356,8 @@ function endGame() {
 
   gameStarted = false;
 
-  setButtonSvgPath(
-    endButton,
-    "M460 71 288 214v84l172 143c20 17 52 2 52-26V96c0-27-32-42-52-25zm-256 0L11 231a32 32 0 0 0 0 50l192 159c21 17 53 2 53-25V95c-1-26-32-41-52-24z"
-  );
-  mapWrapper.classList.add("maximized");
+  setButtonSvgPath(endButton, rewindBackPath);
+  maximizeMap();
 
   const expectedPosition = expectedMarker.getPosition();
 
@@ -291,6 +387,8 @@ function returnToStart() {
   streetPanorama.setPosition(position);
 }
 
-const savedkey = localStorage.getItem("key");
-if (!savedkey) location = "index.html";
-else start(savedkey);
+const key = localStorage.getItem("key");
+const keyForDevelopmentOnly = localStorage.getItem("keyForDevelopmentOnly");
+
+if (!key) location = "index.html";
+else start(key);
