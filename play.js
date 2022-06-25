@@ -236,7 +236,7 @@ async function initializeMaps() {
             localStorage.setItem("keyForDevelopmentOnly", "1");
             location.reload();
           }
-        }, 100);
+        }, 1000);
 
         streetPanoramaStatusChangedListener.remove();
       }
