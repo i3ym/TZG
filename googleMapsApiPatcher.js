@@ -34,7 +34,7 @@ function gjsload(moduleName, func) {
     const funcString = func
       .toString()
       .replace(
-        /([A-Za-z]*?)=(function\(.*?\).*?\{.*?"script".*?appendChild.*?\})/i,
+        /([A-Za-z]*?)=(function\([^)]*?\)[^}]*?\{[^}]*?"script"[^}]*?appendChild[^}]*?\})/i,
         (...groups) => {
           gjsModuleLoadFunc = eval(
             groups[2].replace("function(", "function dynamic(_,") + ";dynamic"
