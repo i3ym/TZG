@@ -18,6 +18,14 @@ switch (location.search) {
       east: 73.61482389999999,
     };
     break;
+  case "?novosibirsk":
+    cityBounds = {
+      south: 54.794539,
+      west: 82.731742,
+      north: 55.148799,
+      east: 83.13685,
+    };
+    break;
   default:
   case "?krasnoyarsk":
     cityBounds = {
