@@ -26,6 +26,14 @@ switch (location.search) {
       east: 83.13685,
     };
     break;
+  case "?ekaterinburg":
+    cityBounds = {
+      south: 56.606608,
+      west: 60.165244,
+      north: 56.991546,
+      east: 60.916870,
+    };
+    break;
   default:
   case "?krasnoyarsk":
     cityBounds = {
