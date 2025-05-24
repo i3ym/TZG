@@ -1,50 +1,3 @@
-let cityBounds = {
-  /** Minimum X */
-  south: null,
-  /** Minimum Y */
-  west: null,
-  /** Maximum X */
-  north: null,
-  /** Maximum Y */
-  east: null,
-};
-
-switch (location.search) {
-  case "?omsk":
-    cityBounds = {
-      south: 54.8298979,
-      west: 73.097454,
-      north: 55.141854,
-      east: 73.61482389999999,
-    };
-    break;
-  case "?novosibirsk":
-    cityBounds = {
-      south: 54.794539,
-      west: 82.731742,
-      north: 55.148799,
-      east: 83.13685,
-    };
-    break;
-  case "?ekaterinburg":
-    cityBounds = {
-      south: 56.606608,
-      west: 60.165244,
-      north: 56.991546,
-      east: 60.916870,
-    };
-    break;
-  default:
-  case "?krasnoyarsk":
-    cityBounds = {
-      south: 55.96792,
-      west: 92.794119,
-      north: 56.092132,
-      east: 93.039045,
-    };
-    break;
-}
-
 const mapStyles = [
   {
     elementType: "geometry",
@@ -150,6 +103,8 @@ const toggleMapSizeButton = document.getElementById("toggleMapSizeButton");
 const mapWrapper = document.getElementById("mapWrapper");
 const mapDiv = document.getElementById("map");
 const streetPanoramaDiv = document.getElementById("streetPanorama");
+const regionInput = document.getElementById("regionInput");
+const regionsDatalist = document.getElementById("regionsDatalist");
 
 let expectedMarker, targetMarker, polylineMarker;
 let streetService;
@@ -233,7 +188,22 @@ async function initializeMaps() {
     visible: false,
   });
 
-  map.fitBounds(cityBounds, 0);
+  for (const boundary of regionData.boundaries) {
+    const polygon = new google.maps.Polygon({
+      paths: boundary.points.map((x) => {
+        return { lng: x[0], lat: x[1] };
+      }),
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.2,
+      strokeWeight: 1,
+      fillOpacity: 0.15,
+      clickable: false,
+    });
+
+    polygon.setMap(map);
+  }
+
+  map.fitBounds(regionBounds, 0);
   map.addListener("click", onMapClick);
 
   if (!keyForDevelopmentOnly) {
@@ -326,20 +296,45 @@ function normalizeMap() {
   mapWrapper.classList.remove("maximized");
 }
 
+function choose(choices) {
+  const index = Math.floor(Math.random() * choices.length);
+
+  return choices[index];
+}
+
+function getRandomPointInRegion() {
+  const boundary = choose(regionData.boundaries);
+
+  const minX = boundary.max[0];
+  const maxX = boundary.min[0];
+  const minY = boundary.min[1];
+  const maxY = boundary.max[1];
+
+  const polygon = turf.polygon([[...boundary.points, boundary.points[0]]]);
+
+  while (true) {
+    const lat = minY + Math.random() * (maxY - minY);
+    const lng = minX + Math.random() * (maxX - minX);
+
+    const point = turf.point([lng, lat]);
+
+    const inside = turf.booleanPointInPolygon(point, polygon);
+
+    if (inside) return { lng, lat };
+  }
+}
+
 async function startGame() {
   if (gameStarted) return;
 
   gameStarted = true;
 
-  for (let i = 0; i < 3; i++) {
-    const posX =
-      Math.random() * (cityBounds.north - cityBounds.south) + cityBounds.south;
-    const posY =
-      Math.random() * (cityBounds.east - cityBounds.west) + cityBounds.west;
+  for (let i = 0; i < 10; i++) {
+    const point = getRandomPointInRegion();
 
     try {
       const panorama = await streetService.getPanorama({
-        location: { lat: posX, lng: posY },
+        location: { lat: point.lat, lng: point.lng },
         radius: 1000,
         preference: "nearest",
         source: "outdoor",
@@ -349,6 +344,8 @@ async function startGame() {
       break;
     } catch {}
   }
+
+  if (!position) throw new Error("Cannot find start position");
 
   streetPanorama.setPosition(position);
 
@@ -403,8 +400,69 @@ function returnToStart() {
   streetPanorama.setPosition(position);
 }
 
+function updateRegion() {
+  const region = nameRegionMap.get(regionInput.value);
+
+  if (!region) {
+    alert("Region not found. Please select exact match from list");
+    return;
+  }
+
+  location = "play.html?region=" + region;
+}
+
+function getRegionBounds() {
+  const minLongitude = Math.min(...regionData.boundaries.map((x) => x.min[0]));
+  const maxLongitude = Math.max(...regionData.boundaries.map((x) => x.max[0]));
+  const minLatitude = Math.max(...regionData.boundaries.map((x) => x.min[1]));
+  const maxLatitude = Math.max(...regionData.boundaries.map((x) => x.max[1]));
+
+  return {
+    north: maxLatitude,
+    south: minLatitude,
+    west: minLongitude,
+    east: maxLongitude,
+  };
+}
+
 const key = localStorage.getItem("key");
 const keyForDevelopmentOnly = localStorage.getItem("keyForDevelopmentOnly");
 
 if (!key) location = "index.html";
-else start(key);
+
+let regionData;
+let regionBounds;
+
+const nameRegionMap = new Map();
+
+(async function () {
+  const search = new URLSearchParams(location.search);
+
+  const regionIndexes = await (await fetch("regions/indexes.json")).json();
+  const region = search.get("region");
+
+  if (!region) {
+    const moscow = Object.entries(regionIndexes).filter((x) =>
+      x[1].some((c) => c === "Moskva")
+    );
+
+    location = "play.html?region=" + moscow[0][0];
+  }
+
+  regionData = await (await fetch(`regions/${region}.json`)).json();
+  regionBounds = getRegionBounds();
+
+  regionInput.value = `${regionData.name}, ${regionData.local_name}`;
+
+  for (const regionIndex of Object.entries(regionIndexes)) {
+    const name = regionIndex[1].join(", ");
+
+    const option = document.createElement("option");
+    option.value = name;
+    regionsDatalist.appendChild(option);
+
+    nameRegionMap.set(name, regionIndex[0]);
+  }
+
+  start();
+})();

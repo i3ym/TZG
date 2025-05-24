@@ -1,5 +1,4 @@
-﻿using TZG.Regions.Generator.Generators;
-using TZG.Regions.Generator.Generators.Web;
+﻿using TZG.Regions.Generator.Generators.Web;
 using TZG.Regions.Generator.Providers.Gadm;
 
 namespace TZG.Regions.Generator;

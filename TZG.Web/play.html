@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" href="common.css" />
     <link rel="stylesheet" href="play.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
   </head>
 
   <body>
@@ -44,6 +46,29 @@
           />
         </svg>
       </a>
+      <input
+        id="regionInput"
+        type="text"
+        list="regionsDatalist"
+        placeholder="Input region name"
+        style="max-width: 20%; width: 300px"
+      />
+      <datalist id="regionsDatalist"></datalist>
+      <button class="button" onclick="updateRegion()">
+        <svg
+          class="icon"
+          aria-hidden="true"
+          focusable="false"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="20.92 0.27 142.08 183.73"
+        >
+          <path
+            fill="currentColor"
+            d="M55 9a67 67 0 0 0-25 92 68 68 0 0 0 81 30l30 53 22-13-31-52a67 67 0 0 0 15-85A68 68 0 0 0 55 9zm70 37a42 42 0 0 1-15 58 42 42 0 1 1 15-58z"
+          />
+        </svg>
+      </button>
       <button
         id="fullscreenButton"
         class="button"
