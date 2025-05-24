@@ -5,7 +5,7 @@
         string Id { get; }
         string Name { get; }
         string LocalName { get; }
-        GeoLevel Level { get; }
+        int Level { get; }
         IReadOnlyCollection<GeoBoundary> Boundaries { get; }
 
         IEnumerable<IGeoRegion> GetSubRegions(CancellationToken cancellationToken);

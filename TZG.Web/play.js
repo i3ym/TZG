@@ -443,7 +443,7 @@ const nameRegionMap = new Map();
 
   if (!region) {
     const moscow = Object.entries(regionIndexes).filter((x) =>
-      x[1].some((c) => c === "Moskva")
+      x[1].some((c) => c === "Moskva" || c === "Moscow")
     );
 
     location = "play.html?region=" + moscow[0][0];

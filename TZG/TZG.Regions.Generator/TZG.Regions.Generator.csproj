@@ -9,8 +9,15 @@
 
   <ItemGroup>
     <PackageReference Include="Clipper2" Version="1.5.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NickBuhro.Translit" Version="1.4.5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\PinkSystem\PinkSystem.Net.Http\PinkSystem.Net.Http.csproj" />
+    <ProjectReference Include="..\..\PinkSystem\PinkSystem\PinkSystem.csproj" />
   </ItemGroup>
 
 </Project>
