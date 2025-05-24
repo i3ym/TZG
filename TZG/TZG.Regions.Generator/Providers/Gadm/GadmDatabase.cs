@@ -133,13 +133,6 @@ namespace TZG.Regions.Generator.Providers.Gadm
 
         private static GadmRegion MapFeature(Feature feature, GeoLevel level, List<IReference> references)
         {
-            var polygons = new PathsD();
-
-            foreach (var boundary in MapGeometry(feature.Geometry))
-                polygons.Add(new(boundary.Points.Select(x => new PointD(x.Longitude, x.Latitude))));
-
-            var unionPolygons = Clipper.Union(polygons, FillRule.NonZero);
-
             var id = level switch
             {
                 GeoLevel.Country => feature.Properties.GID0,
@@ -180,11 +173,7 @@ namespace TZG.Regions.Generator.Providers.Gadm
                     _ => throw new NotSupportedException()
                 },
                 Level = level,
-                Boundaries = unionPolygons.Select(
-                    x => new GeoBoundary(
-                        x.Select(x => new GeoPoint(x.x, x.y)).ToImmutableArray()
-                    )
-                ).ToImmutableArray(),
+                Boundaries = MapGeometry(feature.Geometry).ToImmutableArray(),
                 SubRegions = subRegions
             };
         }
@@ -193,14 +182,27 @@ namespace TZG.Regions.Generator.Providers.Gadm
         {
             if (geometry.Type == "MultiPolygon")
             {
-                foreach (var boundary in geometry.Coordinates.SelectMany(x => x))
+                var polygons = new PathsD();
+
+                foreach (var boundary in geometry.Coordinates)
                 {
-                    yield return new GeoBoundary(
-                        boundary
-                            .Select(x => new GeoPoint(x[0]!.Value<double>(), x[1]!.Value<double>()))
-                            .ToImmutableArray()
-                    );
+                    foreach (var boundary2 in boundary)
+                    {
+                        polygons.Add(new(
+                            boundary2
+                                .Select(x => new PointD(x[0]!.Value<double>(), x[1]!.Value<double>()))
+                                .ToImmutableArray()
+                        ));
+                    }
                 }
+
+                var unionPolygons = Clipper.Union(polygons, FillRule.NonZero);
+
+                return unionPolygons.Select(
+                    x => new GeoBoundary(
+                        x.Select(x => new GeoPoint(x.x, x.y)).ToImmutableArray()
+                    )
+                );
             }
             else
             {
