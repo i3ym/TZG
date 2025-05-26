@@ -30,8 +30,18 @@ namespace TZG.Regions.Generator
                 loggerFactory
             );
 
+            var projectDirectory = GetProjectDirectory();
+
+            var databaseDirectory = Path.Combine(
+                projectDirectory,
+                "Databases",
+                "osm"
+            );
+
+            Directory.CreateDirectory(databaseDirectory);
+
             using var databaseLoader = new OsmDatabaseLoader(
-                "osm",
+                databaseDirectory,
                 httpRequestHandlerFactory.Create(),
                 loggerFactory.CreateLogger<OsmDatabaseLoader>()
             )
@@ -42,7 +52,7 @@ namespace TZG.Regions.Generator
             var database = await databaseLoader.Load("-60189", CancellationToken.None);
 
             var regionsDirectory = Path.Combine(
-                GetProjectDirectory(),
+                projectDirectory,
                 "TZG.Web",
                 "regions"
             );

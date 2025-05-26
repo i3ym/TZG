@@ -73,8 +73,6 @@ namespace TZG.Regions.Generator.Providers.Gadm
 
         public async Task<GadmDatabase> Load(string countryId, CancellationToken cancellationToken)
         {
-            Directory.CreateDirectory(_directory);
-
             _references = new();
 
             var regionsFile = Path.Combine(_directory, countryId + ".json");

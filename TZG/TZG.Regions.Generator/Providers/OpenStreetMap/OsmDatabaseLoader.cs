@@ -71,8 +71,6 @@ namespace TZG.Regions.Generator.Providers.OpenStreetMap
 
         public async Task<OsmDatabase> Load(string boundaryId, CancellationToken cancellationToken)
         {
-            Directory.CreateDirectory(_directory);
-
             _references = new();
             
             var tasksPool = new TasksPool(MaxThreadsAmount, cancellationToken);
