@@ -2,7 +2,6 @@
 using PinkSystem;
 using PinkSystem.IO.Data;
 using PinkSystem.Net;
-using PinkSystem.Net.Http;
 using PinkSystem.Net.Http.Handlers;
 using PinkSystem.Net.Http.Handlers.Factories;
 
@@ -25,11 +24,11 @@ namespace TZG.Regions.Generator.Http
             _loggerFactory = loggerFactory;
         }
 
-        public IHttpRequestHandler Create(HttpRequestHandlerOptions options)
+        public IHttpRequestHandler Create()
         {
-            options.Proxy = _proxiesReader.Read();
+            IHttpRequestHandler httpRequestHandler = new NonPoolingHttpRequestHandler(_httpRequestHandlerFactory);
 
-            IHttpRequestHandler httpRequestHandler = _httpRequestHandlerFactory.Create(options);
+            httpRequestHandler.Proxy = _proxiesReader.Read();
 
             httpRequestHandler = new RepeatHttpRequestHandler(
                 httpRequestHandler,

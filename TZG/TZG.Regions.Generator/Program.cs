@@ -20,10 +20,7 @@ namespace TZG.Regions.Generator
 
             IHttpRequestHandlerFactory httpRequestHandlerFactory;
 
-            httpRequestHandlerFactory = new SystemNetNonPooledHttpRequestHandlerFactory(
-                socketsProvider,
-                TimeSpan.FromSeconds(60)
-            );
+            httpRequestHandlerFactory = new SystemNetHttpRequestHandlerFactory(socketsProvider);
 
             httpRequestHandlerFactory = new HttpReqeustHandlerFactory(
                 new EnumerableDataReader<Proxy>([
@@ -35,7 +32,7 @@ namespace TZG.Regions.Generator
 
             using var databaseLoader = new OsmDatabaseLoader(
                 "osm",
-                httpRequestHandlerFactory.Create(new()),
+                httpRequestHandlerFactory.Create(),
                 loggerFactory.CreateLogger<OsmDatabaseLoader>()
             )
             {
