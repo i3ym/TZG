@@ -4,6 +4,6 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.{vue,scss,js}]
+[*.{html,js,css}]
 indent_style = space
 indent_size = 2
