@@ -18,6 +18,8 @@ namespace TZG.Regions.Generator
         {
             using var loggerFactory = LoggerFactory.Create(x => x.AddConsole());
 
+            var logger = loggerFactory.CreateLogger(typeof(Program).FullName!);
+
             var configuration = new ConfigurationBuilder()
                 .AddCommandLine(args)
                 .AddJsonFile("config.json", optional: true)
@@ -31,6 +33,10 @@ namespace TZG.Regions.Generator
                     .WithRepeating(5, TimeSpan.FromSeconds(10), loggerFactory);
 
             var projectDirectory = GetProjectDirectory();
+
+            logger.LogInformation($"Project directory {projectDirectory}");
+
+            logger.LogInformation("Loading provider...");
 
             var databaseDirectory = Path.Combine(
                 projectDirectory,
@@ -98,11 +104,16 @@ namespace TZG.Regions.Generator
                     throw new NotSupportedException();
             }
 
+            logger.LogInformation("Generating...");
+
             var regionsDirectory = Path.Combine(
                 projectDirectory,
                 "TZG.Web",
                 "regions"
             );
+
+            if (Directory.Exists(regionsDirectory))
+                Directory.Delete(regionsDirectory, recursive: true);
 
             Directory.CreateDirectory(regionsDirectory);
 
