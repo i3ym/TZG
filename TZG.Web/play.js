@@ -131,14 +131,10 @@ function start() {
     console.log("Firefox detected, UserAgent patched");
   }
 
-  if (keyForDevelopmentOnly) {
-    const script = document.createElement("script");
-    script.src = "googleMapsApiPatcher.js";
-    script.onload = createMapsApiScript;
-    document.head.appendChild(script);
-  } else {
-    createMapsApiScript();
-  }
+  const script = document.createElement("script");
+  script.src = "googleMapsApiPatcher.js";
+  script.onload = createMapsApiScript;
+  document.head.appendChild(script);
 }
 
 function createMapsApiScript() {
@@ -205,29 +201,6 @@ async function initializeMaps() {
 
   map.fitBounds(regionBounds, 0);
   map.addListener("click", onMapClick);
-
-  if (!keyForDevelopmentOnly) {
-    const streetPanoramaStatusChangedListener = streetPanorama.addListener(
-      "status_changed",
-      function () {
-        if (streetPanorama.getStatus() !== "OK") return;
-
-        setTimeout(() => {
-          const node = recursivelyFindNodeWithText(
-            streetPanoramaDiv,
-            "For development purposes only"
-          );
-
-          if (node) {
-            localStorage.setItem("keyForDevelopmentOnly", "1");
-            location.reload();
-          }
-        }, 1000);
-
-        streetPanoramaStatusChangedListener.remove();
-      }
-    );
-  }
 
   if (!isMobile) {
     streetPanoramaDiv.addEventListener("mousedown", () => {
@@ -426,7 +399,6 @@ function getRegionBounds() {
 }
 
 const key = localStorage.getItem("key");
-const keyForDevelopmentOnly = localStorage.getItem("keyForDevelopmentOnly");
 
 if (!key) location = "index.html";
 
