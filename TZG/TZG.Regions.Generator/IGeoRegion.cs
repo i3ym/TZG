@@ -1,6 +1,6 @@
 ﻿namespace TZG.Regions.Generator
 {
-    internal interface IGeoRegion
+    public interface IGeoRegion
     {
         string Id { get; }
         string Name { get; }

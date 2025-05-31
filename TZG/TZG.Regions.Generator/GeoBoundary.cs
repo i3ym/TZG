@@ -1,6 +1,6 @@
 ﻿namespace TZG.Regions.Generator
 {
-    internal sealed record GeoBoundary
+    public sealed record GeoBoundary
     {
         public GeoBoundary(IReadOnlyCollection<GeoPoint> points)
         {

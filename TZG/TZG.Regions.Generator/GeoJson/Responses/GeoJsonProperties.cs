@@ -2,7 +2,7 @@
 
 namespace TZG.Regions.Generator.GeoJson.Responses
 {
-    internal sealed class GeoJsonProperties
+    public sealed class GeoJsonProperties
     {
         [JsonProperty("GID_0")]
         public required string GID0 { get; init; }

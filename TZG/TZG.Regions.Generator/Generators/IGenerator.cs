@@ -1,6 +1,6 @@
 ﻿namespace TZG.Regions.Generator.Generators
 {
-    internal interface IGenerator
+    public interface IGenerator
     {
         void Generate(IEnumerable<IGeoRegion> regions);
     }

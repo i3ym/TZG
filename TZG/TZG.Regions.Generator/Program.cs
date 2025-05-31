@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using PinkSystem.IO.Data;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using PinkSystem;
+using PinkSystem.Configuration;
 using PinkSystem.Net;
-using PinkSystem.Net.Http.Handlers.Factories;
+using PinkSystem.Net.Http;
+using PinkSystem.Net.Http.Handlers;
 using PinkSystem.Net.Sockets;
 using TZG.Regions.Generator.Generators.Web;
-using TZG.Regions.Generator.Http;
 using TZG.Regions.Generator.Providers.Gadm;
 using TZG.Regions.Generator.Providers.OpenStreetMap;
 
@@ -16,40 +18,85 @@ namespace TZG.Regions.Generator
         {
             using var loggerFactory = LoggerFactory.Create(x => x.AddConsole());
 
+            var configuration = new ConfigurationBuilder()
+                .AddCommandLine(args)
+                .AddJsonFile("config.json", optional: true)
+                .AddJsonFile("config.debug.json", optional: true)
+                .Build();
+
             var socketsProvider = await LimitedSocketsProvider.CreateDefault();
 
-            IHttpRequestHandlerFactory httpRequestHandlerFactory;
-
-            httpRequestHandlerFactory = new SystemNetHttpRequestHandlerFactory(socketsProvider);
-
-            httpRequestHandlerFactory = new HttpReqeustHandlerFactory(
-                new EnumerableDataReader<Proxy>([
-                    Proxy.Parse("69b32ea3d02148ef1eb6__cr.us:3b385f70aa9837e6@gw.dataimpulse.com:823", ProxyScheme.Http)
-                ]),
-                httpRequestHandlerFactory,
-                loggerFactory
-            );
+            var httpRequestHandlerFactory =
+                new SystemNetHttpRequestHandlerFactory(socketsProvider)
+                    .WithRepeating(5, TimeSpan.FromSeconds(10), loggerFactory);
 
             var projectDirectory = GetProjectDirectory();
 
             var databaseDirectory = Path.Combine(
                 projectDirectory,
-                "Databases",
-                "osm"
+                "Databases"
             );
 
-            Directory.CreateDirectory(databaseDirectory);
+            IEnumerable<IGeoRegion> regions;
 
-            using var databaseLoader = new OsmDatabaseLoader(
-                databaseDirectory,
-                httpRequestHandlerFactory.Create(),
-                loggerFactory.CreateLogger<OsmDatabaseLoader>()
-            )
+            var providerType = configuration.GetValue<string>("Provider:Type");
+
+            switch (providerType)
             {
-                MaxThreadsAmount = 100
-            };
+                case "osm":
+                    var osmDatabaseDirectory = Path.Combine(
+                        databaseDirectory,
+                        "osm"
+                    );
 
-            var database = await databaseLoader.Load("-60189", CancellationToken.None);
+                    Directory.CreateDirectory(osmDatabaseDirectory);
+
+                    var osmHttpClient = new OsmHttpClient(
+                        httpRequestHandlerFactory,
+                        configuration.GetValueRequired<IReadOnlyCollection<string>>("Provider:Proxies")
+                            .AsDataReader()
+                            .ConvertToProxy()
+                    );
+                    var osmApiClient = new OsmApiClient(osmHttpClient);
+                    var osmDatabaseLoader = new OsmDatabaseLoader(
+                        osmDatabaseDirectory,
+                        osmApiClient,
+                        loggerFactory.CreateLogger<OsmDatabaseLoader>()
+                    )
+                    {
+                        MaxThreadsAmount = configuration.GetValue<int>("Provider:MaxThreadsAmount", 100)
+                    };
+                    var osmDatabase = await osmDatabaseLoader.Load(
+                        configuration.GetValueRequired<string>("Provider:BoundaryId"),
+                        CancellationToken.None
+                    );
+
+                    regions = osmDatabase.Regions.Values;
+                    break;
+                case "gadm":
+                    var gadmDatabaseDirectory = Path.Combine(
+                        databaseDirectory,
+                        "gadm"
+                    );
+
+                    Directory.CreateDirectory(gadmDatabaseDirectory);
+
+                    var gadmApiClient = new GadmApiClient(httpRequestHandlerFactory.Create());
+                    var gadmDatabaseLoader = new GadmDatabaseLoader(
+                        gadmDatabaseDirectory,
+                        gadmApiClient,
+                        loggerFactory.CreateLogger<GadmDatabaseLoader>()
+                    );
+                    var gadmDatabase = await gadmDatabaseLoader.Load(
+                        configuration.GetValueRequired<string>("Provider:CountryId"),
+                        CancellationToken.None
+                    );
+
+                    regions = gadmDatabase.Regions.Values;
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
 
             var regionsDirectory = Path.Combine(
                 projectDirectory,
@@ -61,14 +108,15 @@ namespace TZG.Regions.Generator
 
             var generator = new WebGenerator(regionsDirectory);
 
-            generator.Generate(database.Regions.Values);
+            generator.Generate(regions);
         }
 
         private static string GetProjectDirectory()
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            while (directory != null && !directory.EnumerateDirectories().Any(x => x.Name == ".git"))
+            while (directory != null &&
+                !directory.EnumerateDirectories().Any(x => x.Name == ".git"))
             {
                 directory = directory.Parent;
             }

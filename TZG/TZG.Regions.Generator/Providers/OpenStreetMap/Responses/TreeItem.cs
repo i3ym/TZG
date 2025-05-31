@@ -2,7 +2,7 @@
 
 namespace TZG.Regions.Generator.Providers.OpenStreetMap.Responses
 {
-    internal sealed class TreeItem
+    public sealed class TreeItem
     {
         [JsonProperty("parent_boundary_id")]
         public required string ParentBoundaryId { get; init; }

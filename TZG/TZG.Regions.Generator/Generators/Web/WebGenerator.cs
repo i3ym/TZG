@@ -2,7 +2,7 @@
 
 namespace TZG.Regions.Generator.Generators.Web
 {
-    internal sealed class WebGenerator : IGenerator
+    public sealed class WebGenerator : IGenerator
     {
         private readonly string _directory;
 

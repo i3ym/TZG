@@ -2,7 +2,7 @@
 
 namespace TZG.Regions.Generator.GeoJson.Responses
 {
-    internal sealed class GeoJsonResponse
+    public sealed class GeoJsonResponse
     {
         [JsonProperty("features")]
         public required IReadOnlyCollection<GeoJsonFeature> Features { get; init; }

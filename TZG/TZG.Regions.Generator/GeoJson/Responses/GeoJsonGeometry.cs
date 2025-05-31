@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TZG.Regions.Generator.GeoJson.Responses
 {
-    internal sealed class GeoJsonGeometry
+    public sealed class GeoJsonGeometry
     {
         [JsonProperty("type")]
         public required string Type { get; init; }

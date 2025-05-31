@@ -1,28 +1,31 @@
 ﻿using Newtonsoft.Json;
 using PinkSystem;
-using PinkSystem.Net.Http.Handlers;
 using TZG.Regions.Generator.GeoJson.Responses;
 using TZG.Regions.Generator.Providers.OpenStreetMap.Responses;
 
 namespace TZG.Regions.Generator.Providers.OpenStreetMap
 {
-    internal sealed class OsmApiClient : IDisposable
+    public sealed class OsmApiClient
     {
         private static readonly JsonSerializer _serializer = new();
-        private readonly IHttpRequestHandler _httpRequestHandler;
+        private readonly OsmHttpClient _httpClient;
 
-        public OsmApiClient(IHttpRequestHandler httpRequestHandler)
+        public OsmApiClient(OsmHttpClient httpClient)
         {
-            _httpRequestHandler = httpRequestHandler;
+            _httpClient = httpClient;
         }
 
         public async Task<GeoJsonGeometry> GetGeometry(string boundaryId, CancellationToken cancellationToken)
         {
-            var httpResponse = await _httpRequestHandler.SendAsync(
-                new PinkSystem.Net.Http.HttpRequest(
-                    "GET",
-                    new Uri($"https://osm-boundaries.com/api/v1/databases/osm20250407/boundaries/{boundaryId}/geometry?geometryField=way")
-                ),
+            var httpResponse = await _httpClient.Send(
+                new()
+                {
+                    Request = new PinkSystem.Net.Http.HttpRequest(
+                        "GET",
+                        new Uri($"https://osm-boundaries.com/api/v1/databases/osm20250407/boundaries/{boundaryId}/geometry?geometryField=way")
+                    ),
+                    UseProxy = true
+                },
                 cancellationToken
             );
 
@@ -36,11 +39,14 @@ namespace TZG.Regions.Generator.Providers.OpenStreetMap
 
         public async Task<IReadOnlyCollection<TreeItem>> GetTree(string rootBoundaryId, int maxDepth, CancellationToken cancellationToken)
         {
-            var httpResponse = await _httpRequestHandler.SendAsync(
-                new PinkSystem.Net.Http.HttpRequest(
-                    "GET",
-                    new Uri($"https://osm-boundaries.com/api/v1/databases/osm20250407/tree?rootBoundaryId={rootBoundaryId}&maxDepth={maxDepth}&relationsView=all")
-                ),
+            var httpResponse = await _httpClient.Send(
+                new()
+                {
+                    Request = new PinkSystem.Net.Http.HttpRequest(
+                        "GET",
+                        new Uri($"https://osm-boundaries.com/api/v1/databases/osm20250407/tree?rootBoundaryId={rootBoundaryId}&maxDepth={maxDepth}&relationsView=all")
+                    )
+                },
                 cancellationToken
             );
 
@@ -50,11 +56,6 @@ namespace TZG.Regions.Generator.Providers.OpenStreetMap
 
             return _serializer.Deserialize<IReadOnlyCollection<TreeItem>>(jsonStream) ??
                 throw new Exception("Response was empty");
-        }
-
-        public void Dispose()
-        {
-            _httpRequestHandler.Dispose();
         }
     }
 }

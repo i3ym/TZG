@@ -10,7 +10,7 @@ using TZG.Regions.Generator.GeoJson.Responses;
 
 namespace TZG.Regions.Generator.Providers.Gadm
 {
-    internal sealed class GadmDatabaseLoader : IDisposable
+    public sealed class GadmDatabaseLoader : IDisposable
     {
         private static readonly Regex _nameNormalizer =
             new("(Respublika|Kray|Oblast|Rayon)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -60,12 +60,12 @@ namespace TZG.Regions.Generator.Providers.Gadm
 
         public GadmDatabaseLoader(
             string directory,
-            IHttpRequestHandler httpRequestHandler,
+            GadmApiClient apiClient,
             ILogger<GadmDatabaseLoader> logger
         )
         {
             _directory = directory;
-            _apiClient = new(httpRequestHandler);
+            _apiClient = apiClient;
             _logger = logger;
         }
 

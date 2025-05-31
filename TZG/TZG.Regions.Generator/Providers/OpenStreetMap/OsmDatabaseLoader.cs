@@ -7,11 +7,10 @@ using System.Collections.Immutable;
 using NickBuhro.Translit;
 using System.Collections.Concurrent;
 using PinkSystem;
-using PinkSystem.Net.Http.Handlers;
 
 namespace TZG.Regions.Generator.Providers.OpenStreetMap
 {
-    internal sealed class OsmDatabaseLoader : IDisposable
+    public sealed class OsmDatabaseLoader
     {
         private static readonly JsonSerializer _serializer = new();
         private readonly string _directory;
@@ -57,12 +56,12 @@ namespace TZG.Regions.Generator.Providers.OpenStreetMap
 
         public OsmDatabaseLoader(
             string directory,
-            IHttpRequestHandler httpRequestHandler,
+            OsmApiClient apiClient,
             ILogger<OsmDatabaseLoader> logger
         )
         {
             _directory = directory;
-            _apiClient = new(httpRequestHandler);
+            _apiClient = apiClient;
             _logger = logger;
         }
 
@@ -203,11 +202,6 @@ namespace TZG.Regions.Generator.Providers.OpenStreetMap
                 foreach (var childTreeItem in ToFlat(treeItem.Children))
                     yield return childTreeItem;
             }
-        }
-
-        public void Dispose()
-        {
-            _apiClient.Dispose();
         }
     }
 }

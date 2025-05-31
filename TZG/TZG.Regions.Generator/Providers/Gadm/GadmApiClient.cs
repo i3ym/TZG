@@ -5,7 +5,7 @@ using TZG.Regions.Generator.GeoJson.Responses;
 
 namespace TZG.Regions.Generator.Providers.Gadm
 {
-    internal sealed class GadmApiClient : IDisposable
+    public sealed class GadmApiClient : IDisposable
     {
         private static readonly JsonSerializer _serializer = new();
         private readonly IHttpRequestHandler _httpRequestHandler;

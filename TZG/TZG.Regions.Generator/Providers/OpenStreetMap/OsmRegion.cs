@@ -2,7 +2,7 @@
 
 namespace TZG.Regions.Generator.Providers.OpenStreetMap
 {
-    internal sealed class OsmRegion : IGeoRegion
+    public sealed class OsmRegion : IGeoRegion
     {
         public required string Id { get; init; }
         public required string Name { get; init; }

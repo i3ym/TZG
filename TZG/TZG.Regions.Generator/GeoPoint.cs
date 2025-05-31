@@ -1,6 +1,6 @@
 ﻿namespace TZG.Regions.Generator
 {
-    internal sealed record GeoPoint(
+    public sealed record GeoPoint(
         double Longitude,
         double Latitude
     );
